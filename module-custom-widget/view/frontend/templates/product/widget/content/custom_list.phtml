@@ -1,0 +1,192 @@
+<?php $helper = $this->helper('Ktpl\CustomWidget\Helper\Data'); ?>
+<?php if ($exist = ($block->getProductCollection() && $block->getProductCollection()->getSize())): ?>
+    <?php
+    $type = 'widget-product-grid';
+
+    $mode = 'carousel';
+
+    $image = 'new_products_content_widget_grid';
+    $items = $block->getProductCollection()->getItems();
+
+    $showWishlist = true;
+    $showCompare = true;
+    $showCart = true;
+    $templateType = \Magento\Catalog\Block\Product\ReviewRendererInterface::DEFAULT_VIEW;
+    $description = false;
+    ?>
+    <div class="block widget block-products-list <?php /* @noEscape */ echo $mode; ?>">
+        <?php if ($block->getTitle()): ?>
+            <div class="block-title">
+                <strong><?php echo $block->escapeHtml(__($block->getTitle())); ?></strong>
+            </div>
+        <?php endif ?>
+        <div class="block-content">
+            <?php /* @noEscape */ echo '<!-- ' . $image . '-->' ?>
+            <div class="products-<?php /* @noEscape */ echo $mode; ?> <?php /* @noEscape */ echo $mode; ?>">
+                <ol class="home_carousel owl-carousel owl-theme product-items <?php /* @noEscape */ echo $type; ?>">
+                    <?php $iterator = 1; ?>
+                    <?php foreach ($items as $_item):
+                    $productLabels = explode(",", $_item->getProductLabel());
+                     ?>
+                    <?php if ($iterator++ != 1): ?></li><?php endif ?>
+                    <li class="product-item">
+                        <div class="product-item-info">
+                             <!-- Product Label Start -->
+                            <?php
+                            $i = 1;
+                            $attr = $_item->getResource()->getAttribute('product_label');
+                            foreach ($productLabels as $productlabel) {
+                                $class = "no_class";
+                                if($i == 1){
+                                    $class = "left_bottom";
+                                }
+                                elseif ($i == 2) {
+                                    $class = "right_bottom";
+                                }
+                                elseif ($i == 3) {
+                                    $class = "blue_label";
+                                }
+                                elseif ($i == 4) {
+                                    $class = "left_top";
+                                }
+                                if($attr->usesSource() && $productlabel){
+                                    echo "<span class='lebeltwo ".$class."'>".$attr->getSource()->getOptionText($productlabel)."</span>";
+                                }
+                                $i++;
+                            }
+                            ?>
+                            <!-- Product Label End -->
+                            <a href="<?php echo $block->escapeUrl($block->getProductUrl($_item)) ?>" class="product-item-photo">
+                                <?php echo $block->getImage($_item, $image)->toHtml(); ?>
+                            </a>
+                            </div>
+                            <div class="product-item-details">
+                                <strong class="product-item-name">
+                                    <a title="<?php echo $block->escapeHtml($_item->getName()) ?>"
+                                       href="<?php echo $block->escapeUrl($block->getProductUrl($_item)) ?>"
+                                       class="product-item-link">
+                                        <?php echo $block->escapeHtml($_item->getName()) ?>
+                                    </a>
+                                </strong>
+                                <?php
+                                echo $block->getProductPriceHtml($_item, $type);
+                                ?>
+
+                                <?php if ($templateType): ?>
+                                    <?php echo $block->getReviewsSummaryHtml($_item, $templateType) ?>
+                                <?php endif; ?>
+
+                                <?php if ($showWishlist || $showCompare || $showCart): ?>
+                                    <div class="product-item-actions">
+                                        <?php if ($showCart): ?>
+                                            <div class="actions-primary">
+                                                <?php if ($_item->isSaleable()): ?>
+                                                    <?php if ($_item->getTypeInstance()->hasRequiredOptions($_item)): ?>
+                                                        <button class="action tocart primary" data-mage-init='{"redirectUrl":{"url":"<?php echo $block->escapeUrl($block->getAddToCartUrl($_item)) ?>"}}' type="button" title="<?php echo $block->escapeHtmlAttr(__('Add to Cart')) ?>">
+                                                            <span><?php echo $block->escapeHtml(__('Add to Cart')) ?></span>
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <?php
+                                                        $postDataHelper = $this->helper('Magento\Framework\Data\Helper\PostHelper');
+                                                        $postData = $postDataHelper->getPostData($block->getAddToCartUrl($_item), ['product' => $_item->getEntityId()])
+                                                        ?>
+                                                        <button class="action tocart primary" data-post='<?php /* @noEscape */ echo $postData; ?>' type="button" title="<?php echo $block->escapeHtmlAttr(__('Add to Cart')) ?>">
+                                                            <span><?php echo $block->escapeHtml(__('Add to cart')) ?></span>
+                                                        </button>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <?php if ($_item->getIsSalable()): ?>
+                                                        <div class="stock available"><span><?php echo $block->escapeHtml(__('In stock')) ?></span></div>
+                                                    <?php else: ?>
+                                                        <div class="stock unavailable"><span><?php echo $block->escapeHtml(__('Out of stock')) ?></span></div>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        
+                        <?php echo($iterator == count($items)+1) ? '</li>' : '' ?>
+                        <?php endforeach ?>
+                </ol>
+            </div>
+            <?php echo $block->getPagerHtml() ?>
+        </div>
+    </div>
+<?php endif;?>
+<?php if($helper->getStoreCode() == 'en') : ?>
+<script>
+        /*EN*/
+        require(['jquery', 'mageplaza/core/owl.carousel'], function ($) {
+            $('.home_carousel').owlCarousel({
+                loop: true,
+                // margin: 30,
+                autoplay: true,
+                autoPlaySpeed: 5000,
+                autoPlayTimeout: 5000,
+                pagination: true,
+                nav: false,
+                dots: true,
+                responsiveClass: true,
+                responsive: {
+                  0: {
+                    items: 1,
+                    nav: false
+                  },
+                  600: {
+                    items: 2,
+                    nav: false
+                  },
+                  800: {
+                    items: 3,
+                    nav: false
+                  },
+                  1200: {
+                    items: 4,
+                    nav: false,
+                    loop: true
+                  }
+                }
+              });
+        });
+</script>
+<?php else : ?>
+<script type="text/javascript">
+    /*AR*/
+        require(['jquery', 'mageplaza/core/owl.carousel'], function ($) {
+            $('.home_carousel').owlCarousel({
+                loop: true,
+                rtl:true,
+                // margin: 30,
+                autoplay: true,
+                autoPlaySpeed: 5000,
+                autoPlayTimeout: 5000,
+                pagination: true,
+                nav: false,
+                dots: true,
+                responsiveClass: true,
+                responsive: {
+                  0: {
+                    items: 1,
+                    nav: false
+                  },
+                  600: {
+                    items: 2,
+                    nav: false
+                  },
+                  800: {
+                    items: 3,
+                    nav: false
+                  },
+                  1200: {
+                    items: 4,
+                    nav: false,
+                    loop: true
+                  }
+                }
+              });
+        });
+</script>
+<?php endif; ?>
